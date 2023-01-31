@@ -18,6 +18,7 @@ public class Rule {
         }
     }
 
+
     public Rule(ArrayList<Symbol> right) {
         this.rightPart = right;
     }
@@ -98,6 +99,12 @@ public class Rule {
         return i;
     }
 
+    public static Symbol getPreviousSymbol(Rule r) {
+        int pos = r.getDotPosition();
+        if ((pos != 0) && (pos < r.rightPart.size())) return r.rightPart.get(pos-1);
+        else return null;
+    }
+
     public Symbol scrapeSymbolAfterDot() {
         if (!isDotAtEnd()) {
             int i = getDotPosition();
@@ -106,4 +113,5 @@ public class Rule {
         }
         else return null;
     }
+
 }

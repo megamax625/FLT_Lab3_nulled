@@ -2,7 +2,6 @@ package utils;
 
 import java.util.ArrayList;
 import java.util.ArrayDeque;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.stream.Collectors;
 
@@ -45,7 +44,7 @@ public class LRA {
 
     public static class State {
         int num;
-        int finality; // 1 - финальное, 2 - не финальное, но свёртка, 0 - сдвиг по символу сент. формы/стартовое
+        int finality; // 1 - финальное, 2 - не финальное, но свёртка, 0 - сдвиг по символу сент. формы/стартовое, 3 - новое при построении пда
         ArrayList<Rule> associatedRules;
         ArrayList<Symbol> nextSymbolsInRules;
 
@@ -79,7 +78,7 @@ public class LRA {
         ArrayList<Rule> originalRules = new ArrayList<>(CFG.rules);
         State startState = new State(0, 0, originalRules);
         DebugPrint("StartState: " + startState.toString(), debug);
-        ArrayList<State> states = new ArrayList<State>();
+        ArrayList<State> states = new ArrayList<>();
         ArrayList<Transition> transitions = new ArrayList<>();
         states.add(startState);
         DebugPrint("Added new state1: " + startState, debug);
@@ -158,7 +157,7 @@ public class LRA {
         }
         State newState;
         if (state.finality == 1) {
-            newState = new State(states.size(), state.finality, new ArrayList<Rule>(state.associatedRules));
+            newState = new State(states.size(), state.finality, new ArrayList<>(state.associatedRules));
             newState.associatedRules = rules;
             newState.nextSymbolsInRules = newNextSymbols;
         } else {
@@ -169,7 +168,7 @@ public class LRA {
                 DebugPrint("Checking nextSymbol " + ns + " for cycle in state " + newState, debug);
                 stateIndex = findCycle(states, rules, ns);
                 if (stateIndex != -1) {
-                    transitions.add(new Transition(states.get(stateIndex), ns, states.get(stateIndex)));;
+                    transitions.add(new Transition(states.get(stateIndex), ns, states.get(stateIndex)));
                     DebugPrint("Made cycle from " + states.get(stateIndex) + " by symbol " + ns, debug);
                     notProcessedSymbols.remove(ns);
                 }
@@ -302,7 +301,7 @@ public class LRA {
         }
         for (Transition tr : auto.transitions) {
             str.append("\t").append("q").append(tr.src.num).append(" -> q").append(tr.dest.num).append(" [label=");
-            if (tr.symbol.name.matches("\\[[A-z]+\\]")) str.append(tr.symbol.name.substring(1, tr.symbol.name.length()-1));
+            if (tr.symbol.name.matches("\\[[A-z]+\\]")) str.append(tr.symbol.name, 1, tr.symbol.name.length()-1);
             else str.append(tr.symbol.name);
             str.append("];\n");
         }

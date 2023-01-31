@@ -2,7 +2,7 @@ package utils;
 
 public class Symbol {
     String name;
-    String type; // "term", "nonterm", "alternative", "arrow", "empty", "dot"
+    String type; // "term", "nonterm", "alternative", "arrow", "empty", "dot", "stateNum"
 
     public Symbol(String name) {
         this.name = name;

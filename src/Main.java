@@ -1,5 +1,6 @@
 import utils.Grammar;
 import utils.LRA;
+import utils.PDA;
 import utils.Parser;
 import java.io.File;
 import java.io.IOException;
@@ -53,6 +54,8 @@ public class Main {
         System.out.println("LR(0)-automaton in DOT-language:");
         System.out.println(LRA.LRAtoDOT(automaton));
         System.out.println(automaton.getRulesByStates());
+        PDA pda = PDA.LR0toPDA(automaton, debug);
+        System.out.println(PDA.PDAtoDOT(pda));
     }
 
     private static String ReadInputFromFile(File file) throws IOException {
