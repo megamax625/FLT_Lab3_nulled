@@ -82,12 +82,12 @@ public class PDA {
         }
     }
 
-    public static PDA LR0toPDA(LRA auto, boolean debug) {
+    public static PDA LR0toPDA(LRA auto, Grammar cfg, boolean debug) {
         PDA pda = new PDA(auto.states, auto.finalStates, auto.alphabet, auto.startState, auto.transitions);
         DebugPrint(PDAtoDOT(pda), debug);
         AddEpsTransitions(pda, debug);
         DebugPrint(PDAtoDOT(pda), debug);
-        RemoveNontermTransitions(pda, debug);
+        RemoveNontermTransitions(pda, cfg, debug);
         return pda;
     }
 
@@ -167,8 +167,44 @@ public class PDA {
         }
     }
 
-    public static void RemoveNontermTransitions(PDA pda, boolean debug) {
-        return;
+    public static void RemoveNontermTransitions(PDA pda, Grammar cfg, boolean debug) {
+        for (Transition tr : pda.transitions) {
+            if (tr.dest.finality == 2) {
+                tr.stackChange.right = new ArrayList<>();
+                tr.stackChange.right.add(new Symbol("x"));
+            }
+        }
+        for (LRA.State s : new ArrayList<>(pda.states)) {
+            if ((s.finality == 3)) {
+                int oldNum = s.num;
+                int newNum = -1;
+                Symbol nonterm = new Symbol("nope", "nope");
+                for (Transition tr : pda.transitions) {
+                    if ((tr.dest == s) && (tr.src.finality == 2)) {
+                        newNum = tr.src.num;
+                        nonterm = tr.symbol;
+                        pda.transitions.remove(tr);
+                        break;
+                    }
+                }
+                if (newNum != -1) {
+                    for (Transition tr : new ArrayList<>(pda.transitions)) {
+                        if (tr.src.num == oldNum) {
+                            tr.src.num = newNum;
+                            if (tr.symbol.name.equals(nonterm.name)) {
+                                tr.symbol = new Symbol("ε");
+                            }
+                        }
+                        pda.states.remove(s);
+                    }
+                }
+            }
+            for (Transition tr : pda.transitions) {
+                if ((tr.src.finality == 3) && (cfg.nonterminals.stream().anyMatch((nt) -> (nt.name.equals(tr.symbol.name)))))
+                    tr.symbol = new Symbol("ε");
+            }
+            pda.transitions.removeIf((tr) -> (cfg.nonterminals.stream().anyMatch((nt) -> (nt.name.equals(tr.symbol.name)))));
+        }
     }
 
     public static String PDAtoDOT(PDA auto) {

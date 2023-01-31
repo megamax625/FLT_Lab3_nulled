@@ -54,7 +54,8 @@ public class Main {
         System.out.println("LR(0)-automaton in DOT-language:");
         System.out.println(LRA.LRAtoDOT(automaton));
         System.out.println(automaton.getRulesByStates());
-        PDA pda = PDA.LR0toPDA(automaton, debug);
+        PDA pda = PDA.LR0toPDA(automaton, CFG, debug);
+        System.out.println("PDA in DOT-language:");
         System.out.println(PDA.PDAtoDOT(pda));
     }
 
